@@ -50,4 +50,6 @@ add_library(ndt_omp
   src/pclomp/gicp_omp.cpp
 )
 
-
+add_executable(align
+  apps/align.cpp
+)
