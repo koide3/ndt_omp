@@ -53,3 +53,11 @@ add_library(ndt_omp
 add_executable(align
   apps/align.cpp
 )
+add_dependencies(align
+  ndt_omp
+)
+target_link_libraries(align
+  ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES}
+  ndt_omp
+)
