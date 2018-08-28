@@ -61,3 +61,19 @@ target_link_libraries(align
   ${PCL_LIBRARIES}
   ndt_omp
 )
+
+############
+## INSTAL ##
+############
+
+install(
+  TARGETS
+    ndt_omp
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+)
+
+# install headers
+install(DIRECTORY include/pclomp
+        DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION})
