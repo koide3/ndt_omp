@@ -303,7 +303,7 @@ pclomp::GeneralizedIterativeClosestPoint<PointSource, PointTarget>::Optimization
     Eigen::Vector4d res(pp[0] - p_tgt[0], pp[1] - p_tgt[1], pp[2] - p_tgt[2], 0.0);
     // temp = M*res
 
-	Eigen::Matrix4d maha = gicp_->mahalanobis((*gicp_->tmp_idx_src_)[i]).cast<double>();
+	Eigen::Matrix4d maha = gicp_->mahalanobis((*gicp_->tmp_idx_src_)[i]).template cast<double>();
 
     Eigen::Vector4d temp(maha * res);
     // Increment translation gradient
@@ -349,7 +349,7 @@ pclomp::GeneralizedIterativeClosestPoint<PointSource, PointTarget>::Optimization
     // The last coordinate is still guaranteed to be set to 1.0
     Eigen::Vector3d res (pp[0] - p_tgt[0], pp[1] - p_tgt[1], pp[2] - p_tgt[2]);
     // temp = M*res
-    Eigen::Vector3d temp (gicp_->mahalanobis((*gicp_->tmp_idx_src_)[i]).block<3, 3>(0, 0).cast<double>() * res);
+    Eigen::Vector3d temp (gicp_->mahalanobis((*gicp_->tmp_idx_src_)[i]).template block<3, 3>(0, 0).template cast<double>() * res);
     // Increment total error
     f+= double(res.transpose() * temp);
     // Increment translation gradient
