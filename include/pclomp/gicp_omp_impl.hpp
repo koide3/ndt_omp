@@ -249,6 +249,7 @@ pclomp::GeneralizedIterativeClosestPoint<PointSource, PointTarget>::Optimization
   gicp_->applyState(transformation_matrix, x);
   double f = 0;
   std::vector<double> f_array(omp_get_max_threads(), 0.0);
+
   int m = static_cast<int> (gicp_->tmp_idx_src_->size ());
   #pragma omp parallel for
   for(int i = 0; i < m; ++i)
@@ -257,18 +258,17 @@ pclomp::GeneralizedIterativeClosestPoint<PointSource, PointTarget>::Optimization
     pcl::Vector4fMapConst p_src = gicp_->tmp_src_->points[(*gicp_->tmp_idx_src_)[i]].getVector4fMap();
     // The last coordinate, p_tgt[3] is guaranteed to be set to 1.0 in registration.hpp
     pcl::Vector4fMapConst p_tgt = gicp_->tmp_tgt_->points[(*gicp_->tmp_idx_tgt_)[i]].getVector4fMap();
-    Eigen::Vector4f pp(transformation_matrix * p_src);
     // Estimate the distance (cost function)
     // The last coordiante is still guaranteed to be set to 1.0
     // Eigen::AlignedVector3<double> res(pp[0] - p_tgt[0], pp[1] - p_tgt[1], pp[2] - p_tgt[2]);
     // Eigen::AlignedVector3<double> temp(gicp_->mahalanobis((*gicp_->tmp_idx_src_)[i]) * res);
-    Eigen::Vector4d res(pp[0] - p_tgt[0], pp[1] - p_tgt[1], pp[2] - p_tgt[2], 0.0);
-    Eigen::Matrix4d maha = Eigen::Matrix4d::Zero();
-    maha.block<3, 3>(0, 0) = gicp_->mahalanobis((*gicp_->tmp_idx_src_)[i]);
-    Eigen::Vector4d temp(maha * res);
+	Eigen::Vector4f res = transformation_matrix * p_src - p_tgt;
+	Eigen::Matrix4f maha = gicp_->mahalanobis((*gicp_->tmp_idx_src_)[i]);
+    // Eigen::Vector4d temp(maha * res);
     // increment= res'*temp/num_matches = temp'*M*temp/num_matches (we postpone 1/num_matches after the loop closes)
-    double ret = double(res.transpose() * temp);
-    f_array[omp_get_thread_num()] += ret;
+    // double ret = double(res.transpose() * temp);
+	double ret = res.dot(maha*res);
+	f_array[omp_get_thread_num()] += ret;
   }
   f = std::accumulate(f_array.begin(), f_array.end(), 0.0);
   return f/m;
@@ -303,8 +303,7 @@ pclomp::GeneralizedIterativeClosestPoint<PointSource, PointTarget>::Optimization
     Eigen::Vector4d res(pp[0] - p_tgt[0], pp[1] - p_tgt[1], pp[2] - p_tgt[2], 0.0);
     // temp = M*res
 
-    Eigen::Matrix4d maha = Eigen::Matrix4d::Zero();
-    maha.block<3, 3>(0, 0) = gicp_->mahalanobis((*gicp_->tmp_idx_src_)[i]);
+	Eigen::Matrix4d maha = gicp_->mahalanobis((*gicp_->tmp_idx_src_)[i]).template cast<double>();
 
     Eigen::Vector4d temp(maha * res);
     // Increment translation gradient
@@ -350,7 +349,7 @@ pclomp::GeneralizedIterativeClosestPoint<PointSource, PointTarget>::Optimization
     // The last coordinate is still guaranteed to be set to 1.0
     Eigen::Vector3d res (pp[0] - p_tgt[0], pp[1] - p_tgt[1], pp[2] - p_tgt[2]);
     // temp = M*res
-    Eigen::Vector3d temp (gicp_->mahalanobis((*gicp_->tmp_idx_src_)[i]) * res);
+    Eigen::Vector3d temp (gicp_->mahalanobis((*gicp_->tmp_idx_src_)[i]).template block<3, 3>(0, 0).template cast<double>() * res);
     // Increment total error
     f+= double(res.transpose() * temp);
     // Increment translation gradient
@@ -378,7 +377,7 @@ pclomp::GeneralizedIterativeClosestPoint<PointSource, PointTarget>::computeTrans
   // Get the size of the target
   const size_t N = indices_->size ();
   // Set the mahalanobis matrices to identity
-  mahalanobis_.resize (N, Eigen::Matrix3d::Identity ());
+  mahalanobis_.resize (N, Eigen::Matrix4f::Identity ());
   // Compute target cloud covariance matrices
   if ((!target_covariances_) || (target_covariances_->empty ()))
   {
@@ -439,7 +438,10 @@ pclomp::GeneralizedIterativeClosestPoint<PointSource, PointTarget>::computeTrans
       {
         const Eigen::Matrix3d &C1 = (*input_covariances_)[i];
         const Eigen::Matrix3d &C2 = (*target_covariances_)[nn_indices[0]];
-        Eigen::Matrix3d &M = mahalanobis_[i];
+        Eigen::Matrix4f& M_ = mahalanobis_[i];
+		M_.setZero();
+
+		Eigen::Matrix3d M = M_.block<3, 3>(0, 0).cast<double>();
         // M = R*C1
         M = R * C1;
         // temp = M*R' + C2 = R*C1*R' + C2
@@ -447,6 +449,7 @@ pclomp::GeneralizedIterativeClosestPoint<PointSource, PointTarget>::computeTrans
         temp+= C2;
         // M = temp^-1
         M = temp.inverse ();
+		M_.block<3, 3>(0, 0) = M.cast<float>();
         int c = cnt++;
         source_indices[c] = static_cast<int> (i);
         target_indices[c] = nn_indices[0];

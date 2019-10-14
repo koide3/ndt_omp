@@ -195,7 +195,7 @@ namespace pclomp
                                        Eigen::Matrix4f &transformation_matrix);
 
       /** \brief \return Mahalanobis distance matrix for the given point index */
-      inline const Eigen::Matrix3d& mahalanobis(size_t index) const
+      inline const Eigen::Matrix4f& mahalanobis(size_t index) const
       {
         assert(index < mahalanobis_.size());
         return mahalanobis_[index];
@@ -292,7 +292,7 @@ namespace pclomp
       MatricesVectorPtr target_covariances_;
 
       /** \brief Mahalanobis matrices holder. */
-      std::vector<Eigen::Matrix3d> mahalanobis_;
+      std::vector<Eigen::Matrix4f> mahalanobis_;
 
       /** \brief maximum number of optimizations */
       int max_inner_iterations_;
