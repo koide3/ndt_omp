@@ -45,3 +45,7 @@ Several methods for neighbor voxel search are implemented. If you select pclomp:
 
 <img src="data/screenshot.png" height="400pix" /><br>
 Red: target, Green: source, Blue: aligned
+
+## Related packages
+- [ndt_omp](https://github.com/koide3/ndt_omp)
+- [fast_gicp](https://github.com/SMRT-AIST/fast_gicp)
