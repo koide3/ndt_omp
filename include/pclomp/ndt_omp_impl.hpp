@@ -102,6 +102,8 @@ pclomp::NormalDistributionsTransform<PointSource, PointTarget>::computeTransform
 
   Eigen::Transform<float, 3, Eigen::Affine, Eigen::ColMajor> eig_transformation;
   eig_transformation.matrix () = final_transformation_;
+  transformation_array_.clear();
+  transformation_array_.push_back(final_transformation_);
 
   // Convert initial guess matrix to 6 element transformation vector
   Eigen::Matrix<double, 6, 1> p, delta_p, score_gradient;
@@ -148,6 +150,7 @@ pclomp::NormalDistributionsTransform<PointSource, PointTarget>::computeTransform
                        Eigen::AngleAxis<float> (static_cast<float> (delta_p (4)), Eigen::Vector3f::UnitY ()) *
                        Eigen::AngleAxis<float> (static_cast<float> (delta_p (5)), Eigen::Vector3f::UnitZ ())).matrix ();
 
+    transformation_array_.push_back(final_transformation_);
 
     p = p + delta_p;
 
@@ -168,6 +171,8 @@ pclomp::NormalDistributionsTransform<PointSource, PointTarget>::computeTransform
   // Store transformation probability.  The realtive differences within each scan registration are accurate
   // but the normalization constants need to be modified for it to be globally accurate
   trans_probability_ = score / static_cast<double> (input_->points.size ());
+
+  hessian_ = hessian;
 }
 
 #ifndef _OPENMP
