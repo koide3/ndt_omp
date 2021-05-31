@@ -42,6 +42,7 @@
 #include <pcl/filters/voxel_grid.h>
 #include <map>
 #include <unordered_map>
+#include <pcl/pcl_macros.h>
 #include <pcl/point_types.h>
 #include <pcl/kdtree/kdtree_flann.h>
 
