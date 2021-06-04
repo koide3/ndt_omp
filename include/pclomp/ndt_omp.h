@@ -95,8 +95,8 @@ namespace pclomp
 
 	public:
 
-		typedef pcl::shared_ptr< NormalDistributionsTransform<PointSource, PointTarget> > Ptr;
-		typedef pcl::shared_ptr< const NormalDistributionsTransform<PointSource, PointTarget> > ConstPtr;
+		typedef boost::shared_ptr< NormalDistributionsTransform<PointSource, PointTarget> > Ptr;
+		typedef boost::shared_ptr< const NormalDistributionsTransform<PointSource, PointTarget> > ConstPtr;
 
 
 		/** \brief Constructor.
