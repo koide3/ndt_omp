@@ -85,8 +85,13 @@ namespace pclomp
 
     public:
 
+#if PCL_VERSION >= PCL_VERSION_CALC(1, 10, 0)
       typedef pcl::shared_ptr< pcl::VoxelGrid<PointT> > Ptr;
       typedef pcl::shared_ptr< const pcl::VoxelGrid<PointT> > ConstPtr;
+#else
+      typedef boost::shared_ptr< pcl::VoxelGrid<PointT> > Ptr;
+      typedef boost::shared_ptr< const pcl::VoxelGrid<PointT> > ConstPtr;
+#endif
 
       /** \brief Simple structure to hold a centroid, covarince and the number of points in a leaf.
         * Inverse covariance, eigen vectors and engen values are precomputed. */

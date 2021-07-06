@@ -90,15 +90,24 @@ namespace pclomp
       using PointIndicesPtr = pcl::PointIndices::Ptr;
       using PointIndicesConstPtr = pcl::PointIndices::ConstPtr;
 
-      using MatricesVector = std::vector<Eigen::Matrix3d, Eigen::aligned_allocator<Eigen::Matrix3d> >;
-      using MatricesVectorPtr = pcl::shared_ptr<MatricesVector>;
-      using MatricesVectorConstPtr = pcl::shared_ptr<const MatricesVector>;
-
       using InputKdTree = typename pcl::Registration<PointSource, PointTarget>::KdTree;
       using InputKdTreePtr = typename pcl::Registration<PointSource, PointTarget>::KdTreePtr;
 
+      using MatricesVector = std::vector<Eigen::Matrix3d, Eigen::aligned_allocator<Eigen::Matrix3d> >;
+
+#if PCL_VERSION >= PCL_VERSION_CALC(1, 10, 0)
+      using MatricesVectorPtr = pcl::shared_ptr<MatricesVector>;
+      using MatricesVectorConstPtr = pcl::shared_ptr<const MatricesVector>;
+
       using Ptr = pcl::shared_ptr<GeneralizedIterativeClosestPoint<PointSource, PointTarget> >;
       using ConstPtr = pcl::shared_ptr<const GeneralizedIterativeClosestPoint<PointSource, PointTarget> >;
+#else
+      using MatricesVectorPtr = boost::shared_ptr<MatricesVector>;
+      using MatricesVectorConstPtr = boost::shared_ptr<const MatricesVector>;
+
+      using Ptr = boost::shared_ptr<GeneralizedIterativeClosestPoint<PointSource, PointTarget> >;
+      using ConstPtr = boost::shared_ptr<const GeneralizedIterativeClosestPoint<PointSource, PointTarget> >;
+#endif
 
 
       using Vector6d = Eigen::Matrix<double, 6, 1>;

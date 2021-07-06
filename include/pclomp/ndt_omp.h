@@ -95,8 +95,13 @@ namespace pclomp
 
 	public:
 
+#if PCL_VERSION >= PCL_VERSION_CALC(1, 10, 0)
 		typedef pcl::shared_ptr< NormalDistributionsTransform<PointSource, PointTarget> > Ptr;
 		typedef pcl::shared_ptr< const NormalDistributionsTransform<PointSource, PointTarget> > ConstPtr;
+#else
+		typedef boost::shared_ptr< NormalDistributionsTransform<PointSource, PointTarget> > Ptr;
+		typedef boost::shared_ptr< const NormalDistributionsTransform<PointSource, PointTarget> > ConstPtr;
+#endif
 
 
 		/** \brief Constructor.
