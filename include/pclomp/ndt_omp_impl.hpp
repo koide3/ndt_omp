@@ -190,7 +190,7 @@ pclomp::NormalDistributionsTransform<PointSource, PointTarget>::computeDerivativ
   std::vector<double> scores(input_->points.size());
   std::vector<Eigen::Matrix<double, 6, 1>, Eigen::aligned_allocator<Eigen::Matrix<double, 6, 1>>> score_gradients(input_->points.size());
   std::vector<Eigen::Matrix<double, 6, 6>, Eigen::aligned_allocator<Eigen::Matrix<double, 6, 6>>> hessians(input_->points.size());
-  for (int i = 0; i < input_->points.size(); i++) {
+  for (std::size_t i = 0; i < input_->points.size(); i++) {
 		scores[i] = 0;
 		score_gradients[i].setZero();
 		hessians[i].setZero();
@@ -204,7 +204,7 @@ pclomp::NormalDistributionsTransform<PointSource, PointTarget>::computeDerivativ
 
 	// Update gradient and hessian for each point, line 17 in Algorithm 2 [Magnusson 2009]
 #pragma omp parallel for num_threads(num_threads_) schedule(guided, 8)
-	for (int idx = 0; idx < input_->points.size(); idx++)
+	for (std::size_t idx = 0; idx < input_->points.size(); idx++)
 	{
 		int thread_n = omp_get_thread_num();
 
@@ -275,7 +275,7 @@ pclomp::NormalDistributionsTransform<PointSource, PointTarget>::computeDerivativ
 	}
 
   // Ensure that the result is invariant against the summing up order
-  for (int i = 0; i < input_->points.size(); i++) {
+  for (std::size_t i = 0; i < input_->points.size(); i++) {
 		score += scores[i];
 		score_gradient += score_gradients[i];
 		hessian += hessians[i];
@@ -936,7 +936,7 @@ double pclomp::NormalDistributionsTransform<PointSource, PointTarget>::calculate
 {
 	double score = 0;
 
-	for (int idx = 0; idx < trans_cloud.points.size(); idx++)
+	for (std::size_t idx = 0; idx < trans_cloud.points.size(); idx++)
 	{
 		PointSource x_trans_pt = trans_cloud.points[idx];
 
