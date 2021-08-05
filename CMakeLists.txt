@@ -62,9 +62,9 @@ target_link_libraries(align
   ndt_omp
 )
 
-############
-## INSTAL ##
-############
+#############
+## INSTALL ##
+#############
 
 install(
   TARGETS

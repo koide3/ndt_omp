@@ -1,6 +1,8 @@
 # ndt_omp
 This package provides an OpenMP-boosted Normal Distributions Transform (and GICP) algorithm derived from pcl. The NDT algorithm is modified to be SSE-friendly and multi-threaded. It can run up to 10 times faster than its original version in pcl.
 
+[![Build](https://github.com/koide3/ndt_omp/actions/workflows/build.yml/badge.svg)](https://github.com/koide3/ndt_omp/actions/workflows/build.yml)
+
 ### Benchmark (on Core i7-6700K)
 ```
 $ roscd ndt_omp/data
