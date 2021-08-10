@@ -53,7 +53,7 @@ pclomp::GeneralizedIterativeClosestPoint<PointSource, PointTarget>::computeCovar
 {
   if (k_correspondences_ > int (cloud->size ()))
   {
-    PCL_ERROR ("[pcl::GeneralizedIterativeClosestPoint::computeCovariances] Number or points in cloud (%lu) is less than k_correspondences_ (%lu)!\n", cloud->size (), k_correspondences_);
+    PCL_ERROR ("[pcl::GeneralizedIterativeClosestPoint::computeCovariances] Number of points in cloud (%lu) is less than k_correspondences_ (%lu)!\n", cloud->size (), k_correspondences_);
     return;
   }
 
@@ -61,12 +61,12 @@ pclomp::GeneralizedIterativeClosestPoint<PointSource, PointTarget>::computeCovar
   if(cloud_covariances.size () < cloud->size ())
     cloud_covariances.resize (cloud->size ());
 
-  std::vector<std::vector<int>> nn_indecies_array(omp_get_max_threads());
+  std::vector<std::vector<int>> nn_indices_array(omp_get_max_threads());
   std::vector<std::vector<float>> nn_dist_sq_array(omp_get_max_threads());
 
   #pragma omp parallel for
-  for(int i=0; i<cloud->size(); i++) {
-    auto& nn_indecies = nn_indecies_array[omp_get_thread_num()];
+  for(std::size_t i=0; i < cloud->size(); i++) {
+    auto& nn_indices = nn_indices_array[omp_get_thread_num()];
     auto& nn_dist_sq = nn_dist_sq_array[omp_get_thread_num()];
 
     const PointT &query_point = cloud->at(i);
@@ -76,11 +76,11 @@ pclomp::GeneralizedIterativeClosestPoint<PointSource, PointTarget>::computeCovar
     cov.setZero ();
 
     // Search for the K nearest neighbours
-    kdtree->nearestKSearch(query_point, k_correspondences_, nn_indecies, nn_dist_sq);
+    kdtree->nearestKSearch(query_point, k_correspondences_, nn_indices, nn_dist_sq);
 
     // Find the covariance matrix
     for(int j = 0; j < k_correspondences_; j++) {
-      const PointT &pt = (*cloud)[nn_indecies[j]];
+      const PointT &pt = (*cloud)[nn_indices[j]];
 
       mean[0] += pt.x;
       mean[1] += pt.y;
@@ -259,7 +259,7 @@ pclomp::GeneralizedIterativeClosestPoint<PointSource, PointTarget>::Optimization
     // The last coordinate, p_tgt[3] is guaranteed to be set to 1.0 in registration.hpp
     pcl::Vector4fMapConst p_tgt = gicp_->tmp_tgt_->points[(*gicp_->tmp_idx_tgt_)[i]].getVector4fMap();
     // Estimate the distance (cost function)
-    // The last coordiante is still guaranteed to be set to 1.0
+    // The last coordinate is still guaranteed to be set to 1.0
     // Eigen::AlignedVector3<double> res(pp[0] - p_tgt[0], pp[1] - p_tgt[1], pp[2] - p_tgt[2]);
     // Eigen::AlignedVector3<double> temp(gicp_->mahalanobis((*gicp_->tmp_idx_src_)[i]) * res);
 	Eigen::Vector4f res = transformation_matrix * p_src - p_tgt;
@@ -284,7 +284,7 @@ pclomp::GeneralizedIterativeClosestPoint<PointSource, PointTarget>::Optimization
   std::vector<Eigen::Matrix4d, Eigen::aligned_allocator<Eigen::Matrix4d>> R_array(omp_get_max_threads());
   std::vector<Eigen::Vector4d, Eigen::aligned_allocator<Eigen::Vector4d>> g_array(omp_get_max_threads());
 
-  for (int i = 0; i < R_array.size(); i++) {
+  for (std::size_t i = 0; i < R_array.size(); i++) {
 	  R_array[i].setZero();
 	  g_array[i].setZero();
   }
@@ -299,7 +299,7 @@ pclomp::GeneralizedIterativeClosestPoint<PointSource, PointTarget>::Optimization
     pcl::Vector4fMapConst p_tgt = gicp_->tmp_tgt_->points[(*gicp_->tmp_idx_tgt_)[i]].getVector4fMap();
 
     Eigen::Vector4f pp(transformation_matrix * p_src);
-    // The last coordiante is still guaranteed to be set to 1.0
+    // The last coordinate is still guaranteed to be set to 1.0
     Eigen::Vector4d res(pp[0] - p_tgt[0], pp[1] - p_tgt[1], pp[2] - p_tgt[2], 0.0);
     // temp = M*res
 
@@ -318,7 +318,7 @@ pclomp::GeneralizedIterativeClosestPoint<PointSource, PointTarget>::Optimization
 
   g.setZero();
   Eigen::Matrix4d R = Eigen::Matrix4d::Zero();
-  for (int i = 0; i < R_array.size(); i++) {
+  for (std::size_t i = 0; i < R_array.size(); i++) {
 	  R += R_array[i];
 	  g.head<3>() += g_array[i].head<3>();
   }
@@ -338,7 +338,7 @@ pclomp::GeneralizedIterativeClosestPoint<PointSource, PointTarget>::Optimization
   f = 0;
   g.setZero ();
   Eigen::Matrix3d R = Eigen::Matrix3d::Zero ();
-  const int m = static_cast<const int> (gicp_->tmp_idx_src_->size ());
+  const auto m = static_cast<int> (gicp_->tmp_idx_src_->size ());
   for (int i = 0; i < m; ++i)
   {
     // The last coordinate, p_src[3] is guaranteed to be set to 1.0 in registration.hpp
@@ -419,7 +419,7 @@ pclomp::GeneralizedIterativeClosestPoint<PointSource, PointTarget>::computeTrans
     const Eigen::Matrix3d R = transform_R.topLeftCorner<3,3> ();
 
     #pragma omp parallel for
-    for (int i = 0; i < N; i++)
+    for (std::size_t i = 0; i < N; i++)
     {
       auto& nn_indices = nn_indices_array[omp_get_thread_num()];
       auto& nn_dists = nn_dists_array[omp_get_thread_num()];
@@ -459,14 +459,14 @@ pclomp::GeneralizedIterativeClosestPoint<PointSource, PointTarget>::computeTrans
     source_indices.resize(cnt); target_indices.resize(cnt);
 
     std::vector<std::pair<int, int>> indices(source_indices.size());
-    for(int i = 0; i<source_indices.size(); i++) {
+    for(std::size_t i = 0; i<source_indices.size(); i++) {
       indices[i].first = source_indices[i];
       indices[i].second = target_indices[i];
     }
 
     std::sort(indices.begin(), indices.end(), [=](const std::pair<int, int>& lhs, const std::pair<int, int>& rhs) { return lhs.first < rhs.first; });
 
-    for(int i = 0; i < source_indices.size(); i++) {
+    for(std::size_t i = 0; i < source_indices.size(); i++) {
       source_indices[i] = indices[i].first;
       target_indices[i] = indices[i].second;
     }
