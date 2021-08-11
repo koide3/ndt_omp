@@ -49,7 +49,7 @@ namespace pclomp
   /** \brief GeneralizedIterativeClosestPoint is an ICP variant that implements the
     * generalized iterative closest point algorithm as described by Alex Segal et al. in
     * http://www.robots.ox.ac.uk/~avsegal/resources/papers/Generalized_ICP.pdf
-    * The approach is based on using anistropic cost functions to optimize the alignment
+    * The approach is based on using anisotropic cost functions to optimize the alignment
     * after closest point assignments have been made.
     * The original code uses GSL and ANN while in ours we use an eigen mapped BFGS and
     * FLANN.
@@ -90,15 +90,24 @@ namespace pclomp
       using PointIndicesPtr = pcl::PointIndices::Ptr;
       using PointIndicesConstPtr = pcl::PointIndices::ConstPtr;
 
-      using MatricesVector = std::vector<Eigen::Matrix3d, Eigen::aligned_allocator<Eigen::Matrix3d> >;
-      using MatricesVectorPtr = pcl::shared_ptr<MatricesVector>;
-      using MatricesVectorConstPtr = pcl::shared_ptr<const MatricesVector>;
-
       using InputKdTree = typename pcl::Registration<PointSource, PointTarget>::KdTree;
       using InputKdTreePtr = typename pcl::Registration<PointSource, PointTarget>::KdTreePtr;
 
+      using MatricesVector = std::vector<Eigen::Matrix3d, Eigen::aligned_allocator<Eigen::Matrix3d> >;
+
+#if PCL_VERSION >= PCL_VERSION_CALC(1, 10, 0)
+      using MatricesVectorPtr = pcl::shared_ptr<MatricesVector>;
+      using MatricesVectorConstPtr = pcl::shared_ptr<const MatricesVector>;
+
       using Ptr = pcl::shared_ptr<GeneralizedIterativeClosestPoint<PointSource, PointTarget> >;
       using ConstPtr = pcl::shared_ptr<const GeneralizedIterativeClosestPoint<PointSource, PointTarget> >;
+#else
+      using MatricesVectorPtr = boost::shared_ptr<MatricesVector>;
+      using MatricesVectorConstPtr = boost::shared_ptr<const MatricesVector>;
+
+      using Ptr = boost::shared_ptr<GeneralizedIterativeClosestPoint<PointSource, PointTarget> >;
+      using ConstPtr = boost::shared_ptr<const GeneralizedIterativeClosestPoint<PointSource, PointTarget> >;
+#endif
 
 
       using Vector6d = Eigen::Matrix<double, 6, 1>;
@@ -202,7 +211,7 @@ namespace pclomp
       }
 
       /** \brief Computes rotation matrix derivative.
-        * rotation matrix is obtainded from rotation angles x[3], x[4] and x[5]
+        * rotation matrix is obtained from rotation angles x[3], x[4] and x[5]
         * \return d/d_rx, d/d_ry and d/d_rz respectively in g[3], g[4] and g[5]
         * param x array representing 3D transformation
         * param R rotation matrix

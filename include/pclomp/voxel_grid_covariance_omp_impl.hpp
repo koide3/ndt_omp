@@ -110,9 +110,9 @@ pclomp::VoxelGridCovariance<PointT>::applyFilter (PointCloud &output)
   // ---[ RGB special case
   std::vector<pcl::PCLPointField> fields;
   int rgba_index = -1;
-  rgba_index = pcl::getFieldIndex (*input_, "rgb", fields);
+  rgba_index = pcl::getFieldIndex<PointT> ("rgb", fields);
   if (rgba_index == -1)
-    rgba_index = pcl::getFieldIndex (*input_, "rgba", fields);
+    rgba_index = pcl::getFieldIndex<PointT> ("rgba", fields);
   if (rgba_index >= 0)
   {
     rgba_index = fields[rgba_index].offset;
@@ -124,7 +124,7 @@ pclomp::VoxelGridCovariance<PointT>::applyFilter (PointCloud &output)
   {
     // Get the distance field index
     std::vector<pcl::PCLPointField> fields;
-    int distance_idx = pcl::getFieldIndex (*input_, filter_field_name_, fields);
+    int distance_idx = pcl::getFieldIndex<PointT> (filter_field_name_, fields);
     if (distance_idx == -1)
       PCL_WARN ("[pcl::%s::applyFilter] Invalid filter field name. Index is %d.\n", getClassName ().c_str (), distance_idx);
 
@@ -133,9 +133,9 @@ pclomp::VoxelGridCovariance<PointT>::applyFilter (PointCloud &output)
     {
       if (!input_->is_dense)
         // Check if the point is invalid
-        if (!pcl_isfinite (input_->points[cp].x) ||
-            !pcl_isfinite (input_->points[cp].y) ||
-            !pcl_isfinite (input_->points[cp].z))
+        if (!std::isfinite (input_->points[cp].x) ||
+            !std::isfinite (input_->points[cp].y) ||
+            !std::isfinite (input_->points[cp].z))
           continue;
 
       // Get the distance value
@@ -210,9 +210,9 @@ pclomp::VoxelGridCovariance<PointT>::applyFilter (PointCloud &output)
     {
       if (!input_->is_dense)
         // Check if the point is invalid
-        if (!pcl_isfinite (input_->points[cp].x) ||
-            !pcl_isfinite (input_->points[cp].y) ||
-            !pcl_isfinite (input_->points[cp].z))
+        if (!std::isfinite (input_->points[cp].x) ||
+            !std::isfinite (input_->points[cp].y) ||
+            !std::isfinite (input_->points[cp].z))
           continue;
 
       int ijk0 = static_cast<int> (floor (input_->points[cp].x * inverse_leaf_size_[0]) - static_cast<float> (min_b_[0]));
@@ -271,7 +271,7 @@ pclomp::VoxelGridCovariance<PointT>::applyFilter (PointCloud &output)
   if (save_leaf_layout_)
     leaf_layout_.resize (div_b_[0] * div_b_[1] * div_b_[2], -1);
 
-  // Eigen values and vectors calculated to prevent near singluar matrices
+  // Eigen values and vectors calculated to prevent near singular matrices
   Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigensolver;
   Eigen::Matrix3d eigen_val;
   Eigen::Vector3d pt_sum;
@@ -293,7 +293,7 @@ pclomp::VoxelGridCovariance<PointT>::applyFilter (PointCloud &output)
     leaf.mean_ /= leaf.nr_points;
 
     // If the voxel contains sufficient points, its covariance is calculated and is added to the voxel centroids and output clouds.
-    // Points with less than the minimum points will have a can not be accuratly approximated using a normal distribution.
+    // Points with less than the minimum points will have a can not be accurately approximated using a normal distribution.
     if (leaf.nr_points >= min_points_per_voxel_)
     {
       if (save_leaf_layout_)
@@ -321,7 +321,7 @@ pclomp::VoxelGridCovariance<PointT>::applyFilter (PointCloud &output)
         }
       }
 
-      // Stores the voxel indice for fast access searching
+      // Stores the voxel indices for fast access searching
       if (searchable_)
         voxel_centroids_leaf_indices_.push_back (static_cast<int> (it->first));
 
