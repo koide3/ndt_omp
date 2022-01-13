@@ -4,7 +4,6 @@ on:
   push:
     branches: [ master ]
   pull_request:
-    branches: [ master ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -14,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ROS_DISTRO: [melodic, melodic_llvm, noetic, noetic_llvm]
+        ROS_DISTRO: [melodic, melodic_llvm, noetic, noetic_llvm, foxy, foxy_llvm, galactic, galactic_llvm]
 
     steps:
       - uses: actions/checkout@v2
