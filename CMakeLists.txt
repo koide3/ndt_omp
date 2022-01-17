@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
 project(ndt_omp)
 
-# should use march=native ?
-add_definitions(-std=c++14 -msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2)
-set(CMAKE_CXX_FLAGS "-std=c++14 -msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2")
+add_definitions(-std=c++14)
+set(CMAKE_CXX_FLAGS "-std=c++14")
+add_compile_options(-march=native)
 
 # pcl 1.7 causes a segfault when it is built with debug mode
 set(CMAKE_BUILD_TYPE "RELEASE")

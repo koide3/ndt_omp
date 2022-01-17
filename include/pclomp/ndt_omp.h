@@ -228,7 +228,7 @@ namespace pclomp
 		}
 
 		/** \brief Return the transformation array */
-		inline const std::vector<Eigen::Matrix4f>
+		inline const std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f>>
 			getFinalTransformationArray() const
 		{
 			return transformation_array_;
@@ -522,7 +522,7 @@ namespace pclomp
     int num_threads_;
 
 	Eigen::Matrix<double, 6, 6> hessian_;
-	std::vector<Eigen::Matrix4f> transformation_array_;
+	std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f>> transformation_array_;
 
 	public:
 		NeighborSearchMethod search_method;
