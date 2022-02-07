@@ -354,10 +354,11 @@ pclomp::NormalDistributionsTransform<PointSource, PointTarget>::computeAngleDeri
 		h_ang_b2_ << (cx * cy * cz), (-cx * cy * sz), (cx * sy);
 		h_ang_b3_ << (sx * cy * cz), (-sx * cy * sz), (sx * sy);
 
+		// The sign of 'sx * sz' in c2 is incorrect in [Magnusson 2009], and it is fixed here.
 		h_ang_c2_ << (-sx * cz - cx * sy * sz), (sx * sz - cx * sy * cz), 0;
 		h_ang_c3_ << (cx * cz - sx * sy * sz), (-sx * sy * cz - cx * sz), 0;
 
-		h_ang_d1_ << (-cy * cz), (cy * sz), (sy);
+		h_ang_d1_ << (-cy * cz), (cy * sz), (-sy);
 		h_ang_d2_ << (-sx * sy * cz), (sx * sy * sz), (sx * cy);
 		h_ang_d3_ << (cx * sy * cz), (-cx * sy * sz), (-cx * cy);
 
