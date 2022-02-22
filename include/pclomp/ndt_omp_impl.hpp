@@ -53,6 +53,7 @@ pclomp::NormalDistributionsTransform<PointSource, PointTarget>::NormalDistributi
   , gauss_d2_ ()
   , gauss_d3_ ()
   , trans_probability_ ()
+  , regularization_pose_ (boost::none)
   , j_ang_a_ (), j_ang_b_ (), j_ang_c_ (), j_ang_d_ (), j_ang_e_ (), j_ang_f_ (), j_ang_g_ (), j_ang_h_ ()
   , h_ang_a2_ (), h_ang_a3_ (), h_ang_b2_ (), h_ang_b3_ (), h_ang_c2_ (), h_ang_c3_ (), h_ang_d1_ (), h_ang_d2_ ()
   , h_ang_d3_ (), h_ang_e1_ (), h_ang_e2_ (), h_ang_e3_ (), h_ang_f1_ (), h_ang_f2_ (), h_ang_f3_ ()
@@ -116,6 +117,13 @@ pclomp::NormalDistributionsTransform<PointSource, PointTarget>::computeTransform
 
   double score = 0;
   double delta_p_norm;
+
+  if (regularization_pose_)
+  {
+    Eigen::Transform<float, 3, Eigen::Affine, Eigen::ColMajor> regularization_pose_transformation;
+    regularization_pose_transformation.matrix() = regularization_pose_.get();
+    regularization_pose_translation_ = regularization_pose_transformation.translation();
+  }
 
   // Calculate derivatives of initial transform vector, subsequent derivative calculations are done in the step length determination.
   score = computeDerivatives (score_gradient, hessian, output, p);
@@ -191,14 +199,17 @@ pclomp::NormalDistributionsTransform<PointSource, PointTarget>::computeDerivativ
 	score_gradient.setZero();
 	hessian.setZero();
 	double score = 0;
+	int total_neighborhood_count = 0;
 
   std::vector<double> scores(input_->points.size());
   std::vector<Eigen::Matrix<double, 6, 1>, Eigen::aligned_allocator<Eigen::Matrix<double, 6, 1>>> score_gradients(input_->points.size());
   std::vector<Eigen::Matrix<double, 6, 6>, Eigen::aligned_allocator<Eigen::Matrix<double, 6, 6>>> hessians(input_->points.size());
+  std::vector<int> neighborhood_counts(input_->points.size());
   for (std::size_t i = 0; i < input_->points.size(); i++) {
 		scores[i] = 0;
 		score_gradients[i].setZero();
 		hessians[i].setZero();
+		neighborhood_counts[i] = 0;
 	}
 
 	// Precompute Angular Derivatives (eq. 6.19 and 6.21)[Magnusson 2009]
@@ -254,6 +265,7 @@ pclomp::NormalDistributionsTransform<PointSource, PointTarget>::computeDerivativ
 		double score_pt = 0;
 		Eigen::Matrix<double, 6, 1> score_gradient_pt = Eigen::Matrix<double, 6, 1>::Zero();
 		Eigen::Matrix<double, 6, 6> hessian_pt = Eigen::Matrix<double, 6, 6>::Zero();
+		int neighborhood_count = 0;
 
 		for (typename std::vector<TargetGridLeafConstPtr>::iterator neighborhood_it = neighborhood.begin(); neighborhood_it != neighborhood.end(); neighborhood_it++)
 		{
@@ -272,11 +284,14 @@ pclomp::NormalDistributionsTransform<PointSource, PointTarget>::computeDerivativ
 			computePointDerivatives(x, point_gradient_, point_hessian_);
 			// Update score, gradient and hessian, lines 19-21 in Algorithm 2, according to Equations 6.10, 6.12 and 6.13, respectively [Magnusson 2009]
 			score_pt += updateDerivatives(score_gradient_pt, hessian_pt, point_gradient_, point_hessian_, x_trans, c_inv, compute_hessian);
+
+			neighborhood_count++;
 		}
 
 		scores[idx] = score_pt;
 		score_gradients[idx].noalias() = score_gradient_pt;
 		hessians[idx].noalias() = hessian_pt;
+		neighborhood_counts[idx] += neighborhood_count;
 	}
 
   // Ensure that the result is invariant against the summing up order
@@ -284,6 +299,34 @@ pclomp::NormalDistributionsTransform<PointSource, PointTarget>::computeDerivativ
 		score += scores[i];
 		score_gradient += score_gradients[i];
 		hessian += hessians[i];
+		total_neighborhood_count += neighborhood_counts[i];
+	}
+
+	if (regularization_pose_) {
+		float regularization_score = 0.0f;
+		Eigen::Matrix<double, 6, 1> regularization_gradient = Eigen::Matrix<double, 6, 1>::Zero();
+		Eigen::Matrix<double, 6, 6> regularization_hessian = Eigen::Matrix<double, 6, 6>::Zero();
+
+		const float dx = regularization_pose_translation_(0) - static_cast<float>(p(0, 0));
+		const float dy = regularization_pose_translation_(1) - static_cast<float>(p(1, 0));
+		const auto sin_yaw = static_cast<float>(sin(p(5, 0)));
+		const auto cos_yaw = static_cast<float>(cos(p(5, 0)));
+		const float longitudinal_distance = dy * sin_yaw + dx * cos_yaw;
+		const auto neighborhood_count_weight = static_cast<float>(total_neighborhood_count);
+
+		regularization_score = - regularization_scale_factor_ * neighborhood_count_weight * longitudinal_distance * longitudinal_distance;
+
+		regularization_gradient(0, 0) = regularization_scale_factor_ * neighborhood_count_weight * 2.0f * cos_yaw * longitudinal_distance;
+		regularization_gradient(1, 0) = regularization_scale_factor_ * neighborhood_count_weight * 2.0f * sin_yaw * longitudinal_distance;
+
+		regularization_hessian(0, 0) = - regularization_scale_factor_ * neighborhood_count_weight * 2.0f * cos_yaw * cos_yaw;
+		regularization_hessian(0, 1) = - regularization_scale_factor_ * neighborhood_count_weight * 2.0f * cos_yaw * sin_yaw;
+		regularization_hessian(1, 1) = - regularization_scale_factor_ * neighborhood_count_weight * 2.0f * sin_yaw * sin_yaw;
+		regularization_hessian(1, 0) = regularization_hessian(0, 1);
+
+		score += regularization_score;
+		score_gradient += regularization_gradient;
+		hessian += regularization_hessian;
 	}
 
 	return (score);

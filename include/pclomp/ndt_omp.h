@@ -41,6 +41,8 @@
 #ifndef PCL_REGISTRATION_NDT_OMP_H_
 #define PCL_REGISTRATION_NDT_OMP_H_
 
+#include "boost/optional.hpp"
+
 #include <pcl/registration/registration.h>
 #include <pcl/search/impl/search.hpp>
 #include "voxel_grid_covariance_omp.h"
@@ -262,6 +264,21 @@ namespace pclomp
 		// negative log likelihood function
 		// lower is better
 		double calculateScore(const PointCloudSource& cloud) const;
+
+		inline void setRegularizationScaleFactor(float regularization_scale_factor)
+		{
+			regularization_scale_factor_ = regularization_scale_factor;
+		}
+
+		inline void setRegularizationPose(Eigen::Matrix4f regularization_pose)
+		{
+			regularization_pose_ = regularization_pose;
+		}
+
+		inline void unsetRegularizationPose()
+		{
+			regularization_pose_ = boost::none;
+		}
 
 	protected:
 
@@ -523,6 +540,10 @@ namespace pclomp
 
 	Eigen::Matrix<double, 6, 6> hessian_;
 	std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f>> transformation_array_;
+
+	float regularization_scale_factor_;
+	boost::optional<Eigen::Matrix4f> regularization_pose_;
+	Eigen::Vector3f regularization_pose_translation_;
 
 	public:
 		NeighborSearchMethod search_method;
