@@ -143,7 +143,13 @@ pclomp::NormalDistributionsTransform<PointSource, PointTarget>::computeTransform
 
     if (delta_p_norm == 0 || delta_p_norm != delta_p_norm)
     {
-      trans_probability_ = score / static_cast<double> (input_->points.size ());
+      if (input_->points.empty()) {
+        trans_probability_ = 0.0f;
+      }
+      else {
+        trans_probability_ = score / static_cast<double> (input_->points.size ());
+      }
+
       converged_ = delta_p_norm == delta_p_norm;
       return;
     }
@@ -178,7 +184,12 @@ pclomp::NormalDistributionsTransform<PointSource, PointTarget>::computeTransform
 
   // Store transformation probability. The relative differences within each scan registration are accurate
   // but the normalization constants need to be modified for it to be globally accurate
-  trans_probability_ = score / static_cast<double> (input_->points.size ());
+  if (input_->points.empty()) {
+    trans_probability_ = 0.0f;
+  }
+  else {
+    trans_probability_ = score / static_cast<double> (input_->points.size ());
+  }
 
   hessian_ = hessian;
 }
@@ -1026,7 +1037,14 @@ double pclomp::NormalDistributionsTransform<PointSource, PointTarget>::calculate
 			score += score_inc / neighborhood.size();
 		}
 	}
-	return (score) / static_cast<double> (trans_cloud.size());
+
+  if (trans_cloud.points.empty()) {
+    return 0.0f;
+  }
+  else {
+    return (score) / static_cast<double> (trans_cloud.points.size());
+  }
+
 }
 
 #endif // PCL_REGISTRATION_NDT_IMPL_H_
