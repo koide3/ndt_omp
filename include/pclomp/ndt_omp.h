@@ -214,9 +214,9 @@ namespace pclomp
 		}
 
 		inline double
-			getNearestVoxelTransformationProbability() const
+			getNearestVoxelTransformationLikelihood() const
 		{
-			return nearest_voxel_transformation_probability_;
+			return nearest_voxel_transformation_likelihood_;
 		}
 
 		/** \brief Get the number of iterations required to calculate alignment.
@@ -271,7 +271,7 @@ namespace pclomp
 		// lower is better
 		double calculateScore(const PointCloudSource& cloud) const;
 		double calculateTransformationProbability(const PointCloudSource& cloud) const;
-		double calculateNearestVoxelTransformationProbability(const PointCloudSource& cloud) const;
+		double calculateNearestVoxelTransformationLikelihood(const PointCloudSource& cloud) const;
 
 		inline void setRegularizationScaleFactor(float regularization_scale_factor)
 		{
@@ -548,7 +548,7 @@ namespace pclomp
 
 	Eigen::Matrix<double, 6, 6> hessian_;
 	std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f>> transformation_array_;
-	double nearest_voxel_transformation_probability_;
+	double nearest_voxel_transformation_likelihood_;
 
 	float regularization_scale_factor_;
 	boost::optional<Eigen::Matrix4f> regularization_pose_;

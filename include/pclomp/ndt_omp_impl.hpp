@@ -358,10 +358,10 @@ pclomp::NormalDistributionsTransform<PointSource, PointTarget>::computeDerivativ
 	}
 
   if (found_neigborhood_voxel_num != 0) {
-    nearest_voxel_transformation_probability_ = nearest_voxel_score / static_cast<double>(found_neigborhood_voxel_num);
+    nearest_voxel_transformation_likelihood_ = nearest_voxel_score / static_cast<double>(found_neigborhood_voxel_num);
   }
   else {
-    nearest_voxel_transformation_probability_ = 0.0;
+    nearest_voxel_transformation_likelihood_ = 0.0;
   }
 
 	return (score);
@@ -1124,7 +1124,7 @@ double pclomp::NormalDistributionsTransform<PointSource, PointTarget>::calculate
 }
 
 template<typename PointSource, typename PointTarget>
-double pclomp::NormalDistributionsTransform<PointSource, PointTarget>::calculateNearestVoxelTransformationProbability(const PointCloudSource & trans_cloud) const
+double pclomp::NormalDistributionsTransform<PointSource, PointTarget>::calculateNearestVoxelTransformationLikelihood(const PointCloudSource & trans_cloud) const
 {
   double nearest_voxel_score = 0;
   size_t found_neigborhood_voxel_num = 0;
