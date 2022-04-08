@@ -3,7 +3,19 @@ project(ndt_omp)
 
 add_definitions(-std=c++14)
 set(CMAKE_CXX_FLAGS "-std=c++14")
-add_compile_options(-march=native)
+
+# Compile flags for SIMD instructions
+if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86_64")
+  # For x86_64 architecture, SIMD instruction set is fixed below versions,
+  add_compile_options(-msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2)
+else()
+  # For other architecture, like arm64, compile flags are generally prepared by compiler
+  # march=native is disabled as default for specific depending pcl libraries
+  # or pre-building packages for other computers.
+  if(BUILD_WITH_MARCH_NATIVE)
+    add_compile_options(-march=native)
+  endif()
+endif()
 
 # pcl 1.7 causes a segfault when it is built with debug mode
 set(CMAKE_BUILD_TYPE "RELEASE")
