@@ -3,27 +3,14 @@ project(ndt_omp)
 
 include(GNUInstallDirs)
 
-#add_definitions(-std=c++14)
-#set(CMAKE_CXX_FLAGS "-std=c++14")
-
-#if (BUILD_WITH_MARCH_NATIVE)
-#  add_compile_options(-march=native)
-#else()
-#  add_definitions(-msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2)
-#  set(CMAKE_CXX_FLAGS "-msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2")
-#endif()
-
-find_package(PCL 1.7 REQUIRED COMPONENTS registration visualization)
+find_package(PCL 1.7 REQUIRED COMPONENTS registration)
 find_package(OpenMP REQUIRED)
 
 message(STATUS "OpenMP_CXX_INCLUDE_DIRS:" ${OpenMP_CXX_INCLUDE_DIRS})
 message(STATUS "OpenMP_CXX_LIBRARIES:" ${OpenMP_CXX_LIBRARIES})
 message(STATUS "OpenMP_CXX_FLAGS:" ${OpenMP_CXX_FLAGS})
 
-
-#set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-
 
 add_library(ndt_omp
 	src/pclomp/voxel_grid_covariance_omp.cpp
@@ -42,6 +29,8 @@ target_include_directories(ndt_omp PUBLIC
 	${PCL_INCLUDE_DIRS}
 	${OpenMP_CXX_INCLUDE_DIRS}
 )
+
+target_compile_features(ndt_omp PUBLIC cxx_standard_14)
 
 #############
 ## INSTALL ##
