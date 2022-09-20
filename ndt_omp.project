@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CodeLite_Project Name="ndt_omp" Version="10.0.0" InternalType="">
-  <VirtualDirectory Name="include">
-    <File Name="include/pclomp/voxel_grid_covariance_omp_impl.hpp"/>
-    <File Name="include/pclomp/voxel_grid_covariance_omp.h"/>
-    <File Name="include/pclomp/ndt_omp_impl.hpp"/>
-    <File Name="include/pclomp/ndt_omp.h"/>
-    <File Name="include/pclomp/gicp_omp_impl.hpp"/>
-    <File Name="include/pclomp/gicp_omp.h"/>
-  </VirtualDirectory>
   <VirtualDirectory Name="src">
-    <File Name="src/pclomp/voxel_grid_covariance_omp.cpp"/>
-    <File Name="src/pclomp/ndt_omp.cpp"/>
-    <File Name="src/pclomp/gicp_omp.cpp"/>
+    <File Name="src/voxel_grid_covariance_omp_impl.hpp"/>
+    <File Name="src/voxel_grid_covariance_omp.h"/>
+    <File Name="src/voxel_grid_covariance_omp.cpp"/>
+    <File Name="src/ndt_omp_impl.hpp"/>
+    <File Name="src/ndt_omp.h"/>
+    <File Name="src/ndt_omp.cpp"/>
+    <File Name="src/gicp_omp_impl.hpp"/>
+    <File Name="src/gicp_omp.h"/>
+    <File Name="src/gicp_omp.cpp"/>
   </VirtualDirectory>
   <VirtualDirectory Name="build">
     <File Name="pclomp-config.cmake"/>
