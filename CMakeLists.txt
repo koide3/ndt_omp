@@ -1,36 +1,63 @@
 cmake_minimum_required(VERSION 3.10)
-project(ndt_omp)
+project(PCLOMP VERSION "1.0.0")
 
 include(GNUInstallDirs)
 
 find_package(PCL 1.7 REQUIRED COMPONENTS registration)
 find_package(OpenMP REQUIRED)
 
-add_library(ndt_omp
+set(HEADERS
+	include/pclomp/gicp_omp.h
+	include/pclomp/ndt_omp.h
+	include/pclomp/voxel_grid_covariance_omp.h
+)
+
+add_library(registration SHARED
 	src/pclomp/voxel_grid_covariance_omp.cpp
 	src/pclomp/ndt_omp.cpp
 	src/pclomp/gicp_omp.cpp
 )
 
-target_link_libraries(ndt_omp
-	${PCL_REGISTRATION_LIBRARIES}
-	OpenMP::OpenMP_CXX
+set_target_properties(registration PROPERTIES
+	PUBLIC_HEADER "${HEADERS}"
 )
 
-target_include_directories(ndt_omp PUBLIC
-	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>/include
-	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+target_link_libraries(registration
+	PUBLIC ${PCL_REGISTRATION_LIBRARIES}
+	PRIVATE OpenMP::OpenMP_CXX
+)
+
+target_include_directories(registration PUBLIC
+	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/pclomp>
 	${PCL_INCLUDE_DIRS}
 )
 
-install(TARGETS ndt_omp
-	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+# Install binaries
+install(TARGETS registration EXPORT pclomp-targets
+	ARCHIVE       DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	RUNTIME       DESTINATION ${CMAKE_INSTALL_BINDIR}
+	LIBRARY       DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/pclomp
 )
 
-# install headers
-install(DIRECTORY include/pclomp
-	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+# Export the library interface
+install(EXPORT pclomp-targets
+	NAMESPACE pclomp::
+	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/pclomp
 )
 
+# Create and install the version file
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file("pclomp-config-version.cmake"
+	VERSION ${PCLOMP_VERSION}
+	COMPATIBILITY SameMajorVersion
+)
+
+install(
+	FILES
+		pclomp-config.cmake
+		${PROJECT_BINARY_DIR}/pclomp-config-version.cmake
+	DESTINATION
+		${CMAKE_INSTALL_LIBDIR}/cmake/pclomp
+)

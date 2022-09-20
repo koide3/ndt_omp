@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>ndt_omp</name>
-  <version>0.0.0</version>
+  <version>1.0.0</version>
   <description>OpenMP boosted NDT and GICP algorithms</description>
 
   <maintainer email="koide@aisl.cs.tut.ac.jp">koide</maintainer>
