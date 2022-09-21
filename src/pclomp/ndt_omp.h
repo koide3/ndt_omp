@@ -43,7 +43,7 @@
 
 #include <pcl/registration/registration.h>
 #include <pcl/search/impl/search.hpp>
-#include <voxel_grid_covariance_omp.h>
+#include <pclomp/voxel_grid_covariance_omp.h>
 
 #include <unsupported/Eigen/NonLinearOptimization>
 

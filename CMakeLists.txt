@@ -7,9 +7,9 @@ find_package(PCL 1.7 REQUIRED COMPONENTS registration)
 find_package(OpenMP REQUIRED)
 
 set(HEADERS
-	src/gicp_omp.h
-	src/ndt_omp.h
-	src/voxel_grid_covariance_omp.h
+	src/pclomp/gicp_omp.h
+	src/pclomp/ndt_omp.h
+	src/pclomp/voxel_grid_covariance_omp.h
 )
 
 add_library(registration SHARED
@@ -29,7 +29,7 @@ target_link_libraries(registration
 
 target_include_directories(registration PUBLIC
 	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
-	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/pclomp>
+	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 	${PCL_INCLUDE_DIRS}
 )
 
