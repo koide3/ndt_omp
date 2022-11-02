@@ -155,7 +155,7 @@ pclomp::NormalDistributionsTransform<PointSource, PointTarget>::computeTransform
     }
 
     delta_p.normalize ();
-    delta_p_norm = computeStepLengthMT (p, delta_p, delta_p_norm, step_size_, transformation_epsilon_ / 2, score, score_gradient, hessian, output);
+    delta_p_norm = computeStepLengthMT (p, delta_p, delta_p_norm, step_size_, transformation_epsilon_, score, score_gradient, hessian, output);
     delta_p *= delta_p_norm;
 
 
@@ -902,7 +902,7 @@ pclomp::NormalDistributionsTransform<PointSource, PointTarget>::computeStepLengt
 
   double a_t = step_init;
   a_t = std::min (a_t, step_max);
-  a_t = std::max (a_t, step_min);
+  a_t = std::max (a_t, step_min / 2);
 
   x_t = x + step_dir * a_t;
 
@@ -1001,6 +1001,7 @@ pclomp::NormalDistributionsTransform<PointSource, PointTarget>::computeStepLengt
                                              a_t, phi_t, d_phi_t);
     }
 
+    if (a_t == step_min) interval_converged = true;
     step_iterations++;
   }
 
