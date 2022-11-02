@@ -58,6 +58,16 @@ namespace pclomp
 		DIRECT1
 	};
 
+	struct NdtResult
+	{
+		Eigen::Matrix4f pose;
+		float transform_probability;
+		float nearest_voxel_transformation_likelihood;
+		int iteration_num;
+		std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f>> transformation_array;
+	};
+
+
 	/** \brief A 3D Normal Distribution Transform registration implementation for point cloud data.
 	  * \note For more information please see
 	  * <b>Magnusson, M. (2009). The Three-Dimensional Normal-Distributions Transform —
@@ -286,6 +296,21 @@ namespace pclomp
 		inline void unsetRegularizationPose()
 		{
 			regularization_pose_ = boost::none;
+		}
+
+		NdtResult executeScanMatching(Eigen::Matrix4f initial_pose_matrix)
+		{
+			auto output_cloud = std::make_shared<pcl::PointCloud<PointSource>>();
+			this->align(*output_cloud, initial_pose_matrix);
+
+			NdtResult ndt_result;
+			ndt_result.pose = this->getFinalTransformation();
+			ndt_result.transformation_array = getFinalTransformationArray();
+			ndt_result.transform_probability = getTransformationProbability();
+			ndt_result.nearest_voxel_transformation_likelihood =
+				getNearestVoxelTransformationLikelihood();
+			ndt_result.iteration_num = getFinalNumIteration();
+			return ndt_result;
 		}
 
 	protected:
