@@ -58,7 +58,7 @@ namespace pclomp
 		DIRECT1
 	};
 
-	struct NdtResult
+	struct NDTResult
 	{
 		Eigen::Matrix4f pose;
 		float transform_probability;
@@ -68,6 +68,16 @@ namespace pclomp
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 	};
 
+	struct NDTParams
+	{
+		double trans_epsilon;
+		double step_size;
+		double resolution;
+		int max_iterations;
+		pclomp::NeighborSearchMethod search_method;
+		int num_threads;
+		float regularization_scale_factor;
+	};
 
 	/** \brief A 3D Normal Distribution Transform registration implementation for point cloud data.
 	  * \note For more information please see
@@ -299,9 +309,9 @@ namespace pclomp
 			regularization_pose_ = boost::none;
 		}
 
-		NdtResult getResult()
+		NDTResult getResult()
 		{
-			NdtResult ndt_result;
+			NDTResult ndt_result;
 			ndt_result.pose = this->getFinalTransformation();
 			ndt_result.transformation_array = getFinalTransformationArray();
 			ndt_result.transform_probability = getTransformationProbability();
@@ -309,6 +319,30 @@ namespace pclomp
 				getNearestVoxelTransformationLikelihood();
 			ndt_result.iteration_num = getFinalNumIteration();
 			return ndt_result;
+		}
+
+		void setParams(const NDTParams & ndt_params)
+		{
+			this->setTransformationEpsilon(ndt_params.trans_epsilon);
+			this->setStepSize(ndt_params.step_size);
+			this->setResolution(ndt_params.resolution);
+			this->setMaximumIterations(ndt_params.max_iterations);
+			setRegularizationScaleFactor(ndt_params.regularization_scale_factor);
+			setNeighborhoodSearchMethod(ndt_params.search_method);
+			setNumThreads(ndt_params.num_threads);
+		}
+
+		NDTParams getParams() const
+		{
+			NDTParams ndt_params;
+			ndt_params.trans_epsilon = transformation_epsilon_;
+			ndt_params.step_size = getStepSize();
+			ndt_params.resolution = getResolution();
+			ndt_params.max_iterations = max_iterations_;
+			ndt_params.regularization_scale_factor = regularization_scale_factor_;
+			ndt_params.search_method = getNeighborhoodSearchMethod();
+			ndt_params.num_threads = num_threads_;
+			return ndt_params;
 		}
 
 	protected:
