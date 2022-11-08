@@ -2,7 +2,7 @@
 
 This package provides an OpenMP-boosted Normal Distributions Transform (and GICP) algorithm derived from pcl. The NDT algorithm is modified to be SSE-friendly and multi-threaded. It can run up to 10 times faster than its original version in pcl.
 
-For using this package in non-ROS1 projects (ROS2 or without ROS), see forked projects: [dfki-ric/pclomp](https://github.com/dfki-ric/pclomp) [tier4/ndt_omp](https://github.com/tier4/ndt_omp).
+For using this package in non-ROS1 projects (ROS2 or without ROS), see forked repositories: [dfki-ric/pclomp](https://github.com/dfki-ric/pclomp) [tier4/ndt_omp](https://github.com/tier4/ndt_omp).
 
 [![Build](https://github.com/koide3/ndt_omp/actions/workflows/build.yml/badge.svg)](https://github.com/koide3/ndt_omp/actions/workflows/build.yml)
 
