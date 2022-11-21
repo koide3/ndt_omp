@@ -1,4 +1,4 @@
-#include "ndt_omp.h"
+#include <pclomp/ndt_omp.h>
 /*
  * Software License Agreement (BSD License)
  *

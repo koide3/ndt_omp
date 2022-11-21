@@ -1,117 +1,63 @@
 cmake_minimum_required(VERSION 3.10)
-project(ndt_omp)
+project(PCLOMP VERSION "1.0.0")
 
-add_definitions(-std=c++14)
-set(CMAKE_CXX_FLAGS "-std=c++14")
+include(GNUInstallDirs)
 
-if (BUILD_WITH_MARCH_NATIVE)
-  add_compile_options(-march=native)
-else()
-  add_definitions(-msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2)
-  set(CMAKE_CXX_FLAGS "-msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2")
-endif()
+find_package(PCL 1.7 REQUIRED COMPONENTS registration)
+find_package(OpenMP REQUIRED)
 
-# pcl 1.7 causes a segfault when it is built with debug mode
-set(CMAKE_BUILD_TYPE "RELEASE")
-
-find_package(PCL 1.7 REQUIRED)
-include_directories(${PCL_INCLUDE_DIRS})
-link_directories(${PCL_LIBRARY_DIRS})
-add_definitions(${PCL_DEFINITIONS})
-
-message(STATUS "PCL_INCLUDE_DIRS:" ${PCL_INCLUDE_DIRS})
-message(STATUS "PCL_LIBRARY_DIRS:" ${PCL_LIBRARY_DIRS})
-message(STATUS "PCL_DEFINITIONS:" ${PCL_DEFINITIONS})
-
-find_package(OpenMP)
-if (OPENMP_FOUND)
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-endif()
-
-if($ENV{ROS_VERSION} EQUAL 1)
-# ROS1
-find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  pcl_ros
+set(HEADERS
+	src/pclomp/gicp_omp.h
+	src/pclomp/ndt_omp.h
+	src/pclomp/voxel_grid_covariance_omp.h
 )
 
-###################################
-## catkin specific configuration ##
-###################################
-catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES ndt_omp
+add_library(registration SHARED
+	src/voxel_grid_covariance_omp.cpp
+	src/ndt_omp.cpp
+	src/gicp_omp.cpp
 )
 
-###########
-## Build ##
-###########
-include_directories(include)
-include_directories(
-  ${catkin_INCLUDE_DIRS}
+set_target_properties(registration PROPERTIES
+	PUBLIC_HEADER "${HEADERS}"
 )
 
-add_library(ndt_omp
-  src/pclomp/voxel_grid_covariance_omp.cpp
-  src/pclomp/ndt_omp.cpp
-  src/pclomp/gicp_omp.cpp
+target_link_libraries(registration
+	PUBLIC ${PCL_REGISTRATION_LIBRARIES}
+	PRIVATE OpenMP::OpenMP_CXX
 )
 
-add_executable(align
-  apps/align.cpp
-)
-add_dependencies(align
-  ndt_omp
-)
-target_link_libraries(align
-  ${catkin_LIBRARIES}
-  ${PCL_LIBRARIES}
-  ndt_omp
+target_include_directories(registration PUBLIC
+	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+	${PCL_INCLUDE_DIRS}
 )
 
-#############
-## INSTALL ##
-#############
+# Install binaries
+install(TARGETS registration EXPORT pclomp-targets
+	ARCHIVE       DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	RUNTIME       DESTINATION ${CMAKE_INSTALL_BINDIR}
+	LIBRARY       DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/pclomp
+)
+
+# Export the library interface
+install(EXPORT pclomp-targets
+	NAMESPACE pclomp::
+	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/pclomp
+)
+
+# Create and install the version file
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file("pclomp-config-version.cmake"
+	VERSION ${PCLOMP_VERSION}
+	COMPATIBILITY SameMajorVersion
+)
 
 install(
-  TARGETS
-    ndt_omp
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+	FILES
+		pclomp-config.cmake
+		${PROJECT_BINARY_DIR}/pclomp-config-version.cmake
+	DESTINATION
+		${CMAKE_INSTALL_LIBDIR}/cmake/pclomp
 )
-
-# install headers
-install(DIRECTORY include/pclomp
-        DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION})
-else()
-
-# ROS2
-find_package(ament_cmake_auto REQUIRED)
-ament_auto_find_build_dependencies()
-
-###########
-## Build ##
-###########
-include_directories(include)
-include_directories(
-  ${catkin_INCLUDE_DIRS}
-)
-
-add_library(ndt_omp
-  src/pclomp/voxel_grid_covariance_omp.cpp
-  src/pclomp/ndt_omp.cpp
-  src/pclomp/gicp_omp.cpp
-)
-
-target_link_libraries(ndt_omp ${PCL_LIBRARIES})
-
-if(OpenMP_CXX_FOUND)
-  target_link_libraries(ndt_omp OpenMP::OpenMP_CXX)
-else()
-  message(WARNING "OpenMP not found")
-endif()
-
-ament_auto_package()
-endif()
