@@ -99,7 +99,8 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_library(ndt_omp
+ament_auto_add_library(ndt_omp
+  SHARED
   src/pclomp/voxel_grid_covariance_omp.cpp
   src/pclomp/ndt_omp.cpp
   src/pclomp/gicp_omp.cpp
