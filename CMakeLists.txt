@@ -99,12 +99,14 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-ament_auto_add_library(ndt_omp
+add_library(ndt_omp
   SHARED
   src/pclomp/voxel_grid_covariance_omp.cpp
   src/pclomp/ndt_omp.cpp
   src/pclomp/gicp_omp.cpp
 )
+
+ament_export_targets(ndt_omp HAS_LIBRARY_TARGET)
 
 target_link_libraries(ndt_omp ${PCL_LIBRARIES})
 
@@ -113,6 +115,16 @@ if(OpenMP_CXX_FOUND)
 else()
   message(WARNING "OpenMP not found")
 endif()
+
+install(
+  TARGETS
+    ndt_omp
+  EXPORT ndt_omp
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
+)
 
 ament_auto_package()
 endif()
