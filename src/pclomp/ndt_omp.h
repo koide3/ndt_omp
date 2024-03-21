@@ -181,7 +181,7 @@ namespace pclomp
 		  * \param[in] outlier_ratio outlier ratio
 		  */
 		inline void
-			setOutlierRatio(double outlier_ratio)
+			setOulierRatio(double outlier_ratio)
 		{
 			outlier_ratio_ = outlier_ratio;
 		}
