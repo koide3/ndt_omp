@@ -3,4 +3,4 @@
 
 template class pclomp::GeneralizedIterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ>;
 template class pclomp::GeneralizedIterativeClosestPoint<pcl::PointXYZI, pcl::PointXYZI>;
-
+template class pclomp::GeneralizedIterativeClosestPoint<pcl::PointXYZRGB, pcl::PointXYZRGB>;
