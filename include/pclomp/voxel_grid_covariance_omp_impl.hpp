@@ -327,7 +327,7 @@ pclomp::VoxelGridCovariance<PointT>::applyFilter (PointCloud &output)
 
       // Single pass covariance calculation
       leaf.cov_ = (leaf.cov_ - 2 * (pt_sum * leaf.mean_.transpose ())) / leaf.nr_points + leaf.mean_ * leaf.mean_.transpose ();
-      leaf.cov_ *= (leaf.nr_points - 1.0) / leaf.nr_points;
+      leaf.cov_ *= leaf.nr_points / (leaf.nr_points - 1.0);
 
       //Normalize Eigen Val such that max no more than 100x min.
       eigensolver.compute (leaf.cov_);
