@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(PCLOMP VERSION "1.0.0")
+project(pclomp VERSION "1.0.0")
 
 include(GNUInstallDirs)
 
