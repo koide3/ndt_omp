@@ -380,7 +380,7 @@ pclomp::NormalDistributionsTransform<PointSource, PointTarget>::computeAngleDeri
 		h_ang.row(4).noalias() = Eigen::Vector4f((-sx * cz - cx * sy * sz), (sx * sz - cx * sy * cz), 0, 0.0f);				// c2
 		h_ang.row(5).noalias() = Eigen::Vector4f((cx * cz - sx * sy * sz), (-sx * sy * cz - cx * sz), 0, 0.0f);				// c3
 
-		h_ang.row(6).noalias() = Eigen::Vector4f((-cy * cz), (cy * sz), (sy), 0.0f);										// d1
+		h_ang.row(6).noalias() = Eigen::Vector4f((-cy * cz), (cy * sz), (-sy), 0.0f);										// d1
 		h_ang.row(7).noalias() = Eigen::Vector4f((-sx * sy * cz), (sx * sy * sz), (sx * cy), 0.0f);							// d2
 		h_ang.row(8).noalias() = Eigen::Vector4f((cx * sy * cz), (-cx * sy * sz), (-cx * cy), 0.0f);						// d3
 
